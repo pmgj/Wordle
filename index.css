@@ -1,0 +1,181 @@
+body {
+    --color-tone-2: #d3d6da;
+    --color-tone-3: #878a8c;
+    --key-text-color: #1a1a1b;
+    --correct-color: #6aaa64;
+    --present-color: #c9b458;
+    --absent-color: #787c7e;
+    --code-color: white;
+    --border-size: 2px;
+    font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+}
+
+h1 {
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 2.2em;
+}
+
+table {
+    margin: 1em auto;
+    border-spacing: 0.3em;
+}
+td {
+    border: var(--border-size) solid var(--color-tone-2);
+    text-transform: uppercase;
+    width: 2em;
+    height: 2em;
+    text-align: center;
+    font-size: 2em;
+    font-weight: bold;
+}
+td:not(:empty) {
+    border: var(--border-size) solid var(--color-tone-3);
+}
+td:not(:empty).absent {
+    border: var(--border-size) solid var(--absent-color);
+}
+td:not(:empty).correct {
+    border: var(--border-size) solid var(--correct-color);
+}
+td:not(:empty).present {
+    border: var(--border-size) solid var(--present-color);
+}
+
+.row {
+    margin-bottom: 0.5em;
+    text-align: center;
+}
+button {
+    font-size: 0.8em;
+    font-weight: bold;
+    border: 0;
+    padding: 1.3em;
+    margin-right: 0.4em;
+    height: 5em;
+    border-radius: 0.4em;
+    cursor: pointer;
+    background-color: var(--color-tone-2);
+    color: var(--key-text-color);
+}
+
+.correct {
+    background-color: var(--correct-color);
+    border: var(--border-size) solid var(--correct-color);
+    color: var(--code-color);
+}
+
+.present {
+    background-color: var(--present-color);
+    border: var(--border-size) solid var(--present-color);
+    color: var(--code-color);
+}
+
+.absent {
+    background-color: var(--absent-color);
+    border: var(--border-size) solid var(--absent-color);
+    color: var(--code-color);
+}
+
+td[data-animation="pop"] {
+    animation-name: PopIn;
+    animation-duration: 100ms;
+}
+td[data-animation="flip-in"] {
+    animation-name: FlipIn;
+    animation-duration: 250ms;
+    animation-timing-function: ease-in;
+}
+td[data-animation="flip-out"] {
+    animation-name: FlipOut;
+    animation-duration: 250ms;
+    animation-timing-function: ease-in;
+}
+td[data-animation="shake"] {
+    animation-name: Shake;
+    animation-duration: 600ms;
+}
+td[data-animation="bounce"] {
+    animation-name: Bounce;
+    animation-duration: 1000ms;
+}
+
+#message {
+    width: 10em;
+    height: 3em;
+    font-weight: bold;
+    padding: 0.5em;
+    margin: 1em auto;
+    font-size: 1.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: color 1s, background-color 1s;
+}
+
+@keyframes Shake {
+    10%, 90% {
+        transform: translateX(-1px);
+    }
+    20%, 80% {
+        transform: translateX(2px);        
+    }
+    30%, 50%, 70% {
+        transform: translateX(-4px);        
+    }
+    40%, 60% {
+        transform: translateX(4px);
+    }
+}
+
+@keyframes Bounce {
+    0%, 20% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-30px);        
+    }
+    50% {
+        transform: translateY(5px);
+    }
+    60% {
+        transform: translateY(-15px);
+    }
+    80% {
+        transform: translateY(2px);        
+    }
+    100% {        
+        transform: translateY(0);
+    }
+}
+
+@keyframes FlipIn {
+    0% {
+        transform: rotateX(0);
+    }
+    100% {
+        transform: rotateX(-90deg);        
+    }
+}
+
+@keyframes FlipOut {
+    0% {
+        transform: rotateX(-90deg);
+    }
+    100% {
+        transform: rotateX(0);        
+    }
+}
+
+@keyframes PopIn {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    40% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+}
