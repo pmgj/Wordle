@@ -21,6 +21,7 @@ table {
     margin: 1em auto;
     border-spacing: 0.3em;
 }
+
 td {
     border: var(--border-size) solid var(--color-tone-2);
     text-transform: uppercase;
@@ -30,15 +31,19 @@ td {
     font-size: 2em;
     font-weight: bold;
 }
+
 td:not(:empty) {
     border: var(--border-size) solid var(--color-tone-3);
 }
+
 td:not(:empty).absent {
     border: var(--border-size) solid var(--absent-color);
 }
+
 td:not(:empty).correct {
     border: var(--border-size) solid var(--correct-color);
 }
+
 td:not(:empty).present {
     border: var(--border-size) solid var(--present-color);
 }
@@ -47,6 +52,7 @@ td:not(:empty).present {
     margin-bottom: 0.5em;
     text-align: center;
 }
+
 button {
     font-size: 0.8em;
     font-weight: bold;
@@ -82,20 +88,24 @@ td[data-animation="pop"] {
     animation-name: PopIn;
     animation-duration: 100ms;
 }
+
 td[data-animation="flip-in"] {
     animation-name: FlipIn;
     animation-duration: 250ms;
     animation-timing-function: ease-in;
 }
+
 td[data-animation="flip-out"] {
     animation-name: FlipOut;
     animation-duration: 250ms;
     animation-timing-function: ease-in;
 }
+
 td[data-animation="shake"] {
     animation-name: Shake;
     animation-duration: 600ms;
 }
+
 td[data-animation="bounce"] {
     animation-name: Bounce;
     animation-duration: 1000ms;
@@ -116,37 +126,53 @@ td[data-animation="bounce"] {
 }
 
 @keyframes Shake {
-    10%, 90% {
+
+    10%,
+    90% {
         transform: translateX(-1px);
     }
-    20%, 80% {
-        transform: translateX(2px);        
+
+    20%,
+    80% {
+        transform: translateX(2px);
     }
-    30%, 50%, 70% {
-        transform: translateX(-4px);        
+
+    30%,
+    50%,
+    70% {
+        transform: translateX(-4px);
     }
-    40%, 60% {
+
+    40%,
+    60% {
         transform: translateX(4px);
     }
 }
 
 @keyframes Bounce {
-    0%, 20% {
+
+    0%,
+    20% {
         transform: translateY(0);
     }
+
     40% {
-        transform: translateY(-30px);        
+        transform: translateY(-30px);
     }
+
     50% {
         transform: translateY(5px);
     }
+
     60% {
         transform: translateY(-15px);
     }
+
     80% {
-        transform: translateY(2px);        
+        transform: translateY(2px);
     }
-    100% {        
+
+    100% {
         transform: translateY(0);
     }
 }
@@ -155,8 +181,9 @@ td[data-animation="bounce"] {
     0% {
         transform: rotateX(0);
     }
+
     100% {
-        transform: rotateX(-90deg);        
+        transform: rotateX(-90deg);
     }
 }
 
@@ -164,8 +191,9 @@ td[data-animation="bounce"] {
     0% {
         transform: rotateX(-90deg);
     }
+
     100% {
-        transform: rotateX(0);        
+        transform: rotateX(0);
     }
 }
 
@@ -174,6 +202,7 @@ td[data-animation="bounce"] {
         transform: scale(0.8);
         opacity: 0;
     }
+
     40% {
         transform: scale(1.1);
         opacity: 1;
