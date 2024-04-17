@@ -37,12 +37,16 @@ class GUI {
                 let tr = this.tbody.rows[this.currentRow];
                 for (let i = 0; i < tr.cells.length; i++) {
                     tr.cells[i].dataset.animation = "shake";
+                    tr.cells[i].onanimationend = () => {
+                        tr.cells[i].dataset.animation = "";
+                    };
                 }
             }
         }
     }
     showWord(mr) {
-        let styles = ["absent", "present", "correct"];
+        let bgStyles = ["bg-secondary", "bg-warning", "bg-success"];
+        let bdStyles = ["border-secondary", "border-warning", "border-success"];
         let endOfGame = () => {
             this.currentRow++;
             this.currentCol = 0;
@@ -52,21 +56,21 @@ class GUI {
                 case Winner.WIN:
                     window.onkeyup = undefined;
                     message.textContent = "Congratulations!";
-                    message.className = "correct";
+                    message.className = "bg-success text-white";
                     message.style.visibility = "visible";
                     let i = 1, td = this.tbody.rows[this.currentRow - 1].cells[0];
                     let endanim = cell => {
                         cell.dataset.animation = "bounce";
                         if (cell.nextSibling) {
-                            setTimeout(() => endanim(cell.nextSibling), i++ * 150);
+                            setTimeout(() => endanim(cell.nextSibling), i++ * 100);
                         }
                     };
                     endanim(td);
                     break;
                 case Winner.LOSE:
                     window.onkeyup = undefined;
-                    message.textContent = `You lose! Correct word: ${mr.code}`;
-                    message.className = "absent";
+                    message.textContent = `You lose! Correct word: ${mr.code.toUpperCase()}`;
+                    message.className = "bg-secondary text-white";
                     message.style.visibility = "visible";
                     break;
             }
@@ -76,7 +80,10 @@ class GUI {
                 let index = mr.hint[i];
                 let letter = this.currentWord[i].toLowerCase();
                 let b = document.querySelector(`button[data-value='${letter}']`);
-                b.className = styles[index];
+                b.classList.remove("bg-secondary-subtle");
+                b.classList.remove("btn-warning");
+                let bStyles = ["btn-secondary", "btn-warning", "btn-success"];
+                b.classList.add(bStyles[index]);
                 let td = this.tbody.rows[this.currentRow].cells[i];
                 td.onanimationend = undefined;
             }
@@ -86,7 +93,9 @@ class GUI {
             cell.dataset.animation = "flip-in";
             cell.onanimationend = () => {
                 cell.dataset.animation = "flip-out";
-                cell.className = styles[mr.hint[cell.cellIndex]];
+                cell.classList.add("text-white");
+                cell.classList.add(bgStyles[mr.hint[cell.cellIndex]]);
+                cell.classList.add(bdStyles[mr.hint[cell.cellIndex]]);
                 cell.onanimationend = () => {
                     if (cell.nextSibling) {
                         animation(cell.nextSibling);
@@ -135,7 +144,6 @@ class GUI {
         window.onkeyup = this.keyPressed.bind(this);
         let buttons = document.querySelectorAll("button");
         buttons.forEach(b => b.onclick = this.buttonPressed.bind(this));
-        console.log(this.wordle.secret);
     }
 }
 let gui = new GUI();

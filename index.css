@@ -1,29 +1,11 @@
-body {
-    --color-tone-2: #d3d6da;
-    --color-tone-3: #878a8c;
-    --key-text-color: #1a1a1b;
-    --correct-color: #6aaa64;
-    --present-color: #c9b458;
-    --absent-color: #787c7e;
-    --code-color: white;
-    --border-size: 2px;
-    font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
-}
-
-h1 {
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-size: 2.2em;
-}
-
 table {
     margin: 1em auto;
     border-spacing: 0.3em;
+    border-collapse: separate;
 }
 
 td {
-    border: var(--border-size) solid var(--color-tone-2);
+    border: 2px solid var(--bs-dark-bg-subtle);
     text-transform: uppercase;
     width: 2em;
     height: 2em;
@@ -33,55 +15,45 @@ td {
 }
 
 td:not(:empty) {
-    border: var(--border-size) solid var(--color-tone-3);
+    border-color: var(--bs-secondary-color);
 }
 
-td:not(:empty).absent {
-    border: var(--border-size) solid var(--absent-color);
-}
-
-td:not(:empty).correct {
-    border: var(--border-size) solid var(--correct-color);
-}
-
-td:not(:empty).present {
-    border: var(--border-size) solid var(--present-color);
-}
-
-.row {
-    margin-bottom: 0.5em;
+#keyboard {
     text-align: center;
 }
 
-button {
-    font-size: 0.8em;
-    font-weight: bold;
-    border: 0;
-    padding: 1.3em;
-    margin-right: 0.4em;
-    height: 5em;
-    border-radius: 0.4em;
-    cursor: pointer;
-    background-color: var(--color-tone-2);
-    color: var(--key-text-color);
+#keyboard div {
+    margin-bottom: 0.5em;
 }
 
-.correct {
-    background-color: var(--correct-color);
-    border: var(--border-size) solid var(--correct-color);
-    color: var(--code-color);
+#keyboard div button {
+    margin: 2px;
+    font-size: 20px;
+    width: 32px;
+    padding: 5px;
 }
 
-.present {
-    background-color: var(--present-color);
-    border: var(--border-size) solid var(--present-color);
-    color: var(--code-color);
+#keyboard div button[data-value="Enter"],
+#keyboard div button[data-value="Backspace"] {
+    width: 72px;
 }
 
-.absent {
-    background-color: var(--absent-color);
-    border: var(--border-size) solid var(--absent-color);
-    color: var(--code-color);
+@media (max-width: 400px) {
+    #keyboard div button {
+        margin: 0;
+        width: 28px;
+        padding: 0;
+        font-size: 1rem;
+    }
+
+    #keyboard div button[data-value="Enter"],
+    #keyboard div button[data-value="Backspace"] {
+        width: 62px;
+    }
+}
+
+.btn-warning {
+    color: white;
 }
 
 td[data-animation="pop"] {
@@ -91,13 +63,13 @@ td[data-animation="pop"] {
 
 td[data-animation="flip-in"] {
     animation-name: FlipIn;
-    animation-duration: 250ms;
+    animation-duration: 200ms;
     animation-timing-function: ease-in;
 }
 
 td[data-animation="flip-out"] {
     animation-name: FlipOut;
-    animation-duration: 250ms;
+    animation-duration: 200ms;
     animation-timing-function: ease-in;
 }
 
@@ -121,7 +93,6 @@ td[data-animation="bounce"] {
     display: flex;
     align-items: center;
     justify-content: center;
-    text-align: center;
     transition: color 1s, background-color 1s;
 }
 

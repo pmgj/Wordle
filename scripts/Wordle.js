@@ -20,10 +20,30 @@ export default class Wordle {
         if (!this.words.includes(value)) {
             throw new NotInWordListError();
         }
-        let result = [];
+        let result = [-1, -1, -1, -1, -1];
         for (let i = 0; i < this.secret.length; i++) {
             let number = value[i];
-            result.push(!this.secret.includes(number) ? 0 : number === this.secret[i] ? 2 : 1);
+            if (!this.secret.includes(number)) {
+                result[i] = 0;
+            } else if (number === this.secret[i]) {
+                result[i] = 2;
+            }
+        }
+        for (let i = 0; i < result.length; i++) {
+            if (result[i] === -1) {
+                let v1 = [...this.secret].filter(v => v === value[i]).length;
+                let v2 = [...value].filter(v => v === value[i]).length;
+                if (v1 >= v2) {
+                    result[i] = 1;
+                } else {
+                    let index = value.indexOf(value[i], i + 1);
+                    if (index !== -1 && result[index] === -1) {
+                        result[i] = 1;
+                    } else {
+                        result[i] = 0;
+                    }
+                }
+            }
         }
         this.tries++;
         if (result.every(e => e === 2)) {
