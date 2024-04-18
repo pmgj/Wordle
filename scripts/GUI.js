@@ -43,12 +43,18 @@ class GUI {
         let styleKeyboard = () => {
             for (let i = 0; i < mr.hint.length; i++) {
                 let index = mr.hint[i];
-                let letter = this.wordle[tabindex].currentWord[i].toLowerCase();
+                let letter = this.wordle[tabindex].currentWord[i];
                 let b = document.querySelector(`button[data-value='${letter}']`);
                 let bStyles = ["btn-secondary", "btn-warning", "btn-success"];
-                b.classList.remove("bg-secondary-subtle");
-                b.classList.add("text-white");
-                b.classList.add(bStyles[index]);
+                if (bStyles.indexOf(b.dataset[`color${tabindex}`]) < bStyles.indexOf(bStyles[index])) {
+                    b.classList.remove(b.dataset[`color${tabindex}`]);
+                    b.dataset[`color${tabindex}`] = bStyles[index];
+                }
+                if (b.dataset.color0) {
+                    b.classList.remove("bg-secondary-subtle");
+                    b.classList.add("text-white");
+                    b.classList.add(b.dataset[`color${tabindex}`]);
+                }
             }
             endOfGame();
         };
