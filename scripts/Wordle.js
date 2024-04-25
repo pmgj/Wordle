@@ -20,7 +20,7 @@ export default class Wordle {
         if (!this.words.includes(value)) {
             throw new NotInWordListError();
         }
-        let result = [-1, -1, -1, -1, -1];
+        let result = new Array(this.wordLength).fill(-1);
         for (let i = 0; i < this.secret.length; i++) {
             let number = value[i];
             if (!this.secret.includes(number)) {
