@@ -29,15 +29,15 @@ public class Endpoint {
     public void onOpen(Session session) throws IOException, EncodeException {
         if (s1 == null) {
             s1 = session;
-            s1.getBasicRemote().sendObject(new Message(ConnectionType.OPEN, game, Player.PLAYER1, null));
+            s1.getBasicRemote().sendObject(new Message(ConnectionType.OPEN, Player.PLAYER1, null));
         } else if (s2 == null) {
             s2 = session;
             String content = new String(Files.readAllBytes(Paths.get("src\\main\\java\\resources\\words_en.js")));
             String[] array = JsonbBuilder.create().fromJson(content, String[].class);
             List<String> list = List.of(array);
             game = new Wordle(list, 6);
-            s2.getBasicRemote().sendObject(new Message(ConnectionType.OPEN, game, Player.PLAYER2, null));
-            sendMessage(new Message(ConnectionType.MESSAGE, game, null, null));
+            s2.getBasicRemote().sendObject(new Message(ConnectionType.OPEN, Player.PLAYER2, null));
+            sendMessage(new Message(ConnectionType.MESSAGE, game.getTurn(), null));
         } else {
             session.close();
         }
@@ -48,9 +48,9 @@ public class Endpoint {
         try {
             MoveResult ret = game.check(session == s1 ? Player.PLAYER1 : Player.PLAYER2, word);
             if (ret.winner() == Winner.NONE) {
-                sendMessage(new Message(ConnectionType.MESSAGE, game, null, ret));
+                sendMessage(new Message(ConnectionType.MESSAGE, game.getTurn(), ret));
             } else {
-                sendMessage(new Message(ConnectionType.ENDGAME, game, null, ret));
+                sendMessage(new Message(ConnectionType.ENDGAME, game.getTurn(), ret));
             }
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
@@ -70,11 +70,11 @@ public class Endpoint {
             case 1001, 4001 -> {
                 if (session == s1) {
                     s2.getBasicRemote()
-                            .sendObject(new Message(ConnectionType.ENDGAME, game, null, null));
+                            .sendObject(new Message(ConnectionType.ENDGAME, Player.PLAYER2, null));
                     s1 = null;
                 } else {
                     s1.getBasicRemote()
-                            .sendObject(new Message(ConnectionType.ENDGAME, game, null, null));
+                            .sendObject(new Message(ConnectionType.ENDGAME, Player.PLAYER1, null));
                     s2 = null;
                 }
             }

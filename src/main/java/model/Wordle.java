@@ -26,6 +26,10 @@ public class Wordle {
         this.turn = Player.PLAYER1;
     }
 
+    public Player getTurn() {
+        return turn;
+    }
+
     public MoveResult check(Player player, String value) throws Exception {
         if (value.length() != this.secret.length()) {
             throw new Exception(
