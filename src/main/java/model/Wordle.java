@@ -1,8 +1,13 @@
 package model;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
+
+import jakarta.json.bind.JsonbBuilder;
 
 public class Wordle {
     private List<String> words;
@@ -10,6 +15,7 @@ public class Wordle {
     private int tries;
     private int maxTries;
     private int wordLength;
+    private Player turn;
 
     public Wordle(List<String> words, int tries) {
         this.words = words;
@@ -17,9 +23,10 @@ public class Wordle {
         this.tries = 0;
         this.maxTries = tries;
         this.wordLength = this.secret.length();
+        this.turn = Player.PLAYER1;
     }
 
-    public MoveResult check(String value) throws Exception {
+    public MoveResult check(Player player, String value) throws Exception {
         if (value.length() != this.secret.length()) {
             throw new Exception(
                     String.format("The length of the word is incorrect. Must be %d.", this.secret.length()));
@@ -28,7 +35,10 @@ public class Wordle {
             throw new Exception("You have no more tries.");
         }
         if (!this.words.contains(value)) {
-            throw new Exception();
+            throw new Exception("The word is not in word list.");
+        }
+        if (this.turn != player) {
+            throw new Exception("It's not your turn.");
         }
 
         int[] result = new int[this.wordLength];
@@ -58,6 +68,7 @@ public class Wordle {
                 }
             }
         }
+        this.turn = this.turn == Player.PLAYER1 ? Player.PLAYER2 : Player.PLAYER1;
         this.tries++;
         if (IntStream.of(result).allMatch(e -> e == 2)) {
             return new MoveResult(Winner.WIN, this.secret, result);
@@ -66,5 +77,18 @@ public class Wordle {
             return new MoveResult(Winner.LOSE, this.secret, result);
         }
         return new MoveResult(Winner.NONE, null, result);
+    }
+
+    public static void main(String[] args) {
+        try {
+            String content = new String(Files.readAllBytes(Paths.get("src\\main\\java\\resources\\words_en.js")));
+            System.out.println(content);
+            String[] array = JsonbBuilder.create().fromJson(content, String[].class);
+            System.out.println(array[0]);
+            List<String> list = List.of(array);
+            System.out.println(list.getFirst());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
