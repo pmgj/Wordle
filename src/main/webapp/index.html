@@ -16,7 +16,10 @@
     <main>
         <h1 class="text-center">Wordle</h1>
         <div id="message">&nbsp;</div>
-        <table>
+        <table id="opBoard">
+            <tbody></tbody>
+        </table>
+        <table id="myBoard">
             <tbody></tbody>
         </table>
         <div id="keyboard">
@@ -53,6 +56,9 @@
                 <button class="btn bg-secondary-subtle" data-value="n">N</button>
                 <button class="btn bg-secondary-subtle" data-value="m">M</button>
                 <button class="btn bg-secondary-subtle" data-value="Backspace">&DoubleLeftArrow;</button>
+            </div>
+            <div>
+                <input type="button" value="Start" class="btn btn-primary">
             </div>
         </div>
     </main>

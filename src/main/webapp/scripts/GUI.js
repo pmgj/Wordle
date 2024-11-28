@@ -1,9 +1,10 @@
 class GUI {
     constructor() {
+        this.ws = null;
         let tBodies = document.querySelectorAll("tbody");
         this.wordle = [];
         for (const table of tBodies) {
-            this.wordle.push({ game: new Wordle(words, 6), row: 0, col: 0, currentWord: "", tbody: table, isOver: false });
+            this.wordle.push({ currentWord: "", tbody: table });
         }
     }
     showWord(mr, tabindex) {
@@ -153,11 +154,60 @@ class GUI {
             element.tbody.innerHTML = rows;
         }
     }
+    readData(evt) {
+        let data = JSON.parse(evt.data);
+        switch (data.type) {
+            case "OPEN":
+                /* Informando cor da peça do usuário atual */
+                this.player = data.turn;
+                this.setMessage("Waiting for opponent.");
+                this.clearBoard();
+                break;
+            case "MESSAGE":
+                /* Recebendo o tabuleiro modificado */
+                this.printBoard(data.board);
+                this.setMessage(data.turn === this.player ? "Your turn." : "Opponent's turn.");
+                break;
+            case "ENDGAME":
+                /* Fim do jogo */
+                this.printBoard(data.board);
+                this.ws.close(this.closeCodes.ENDGAME.code, this.closeCodes.ENDGAME.description);
+                this.endGame(data.winner);
+                break;
+        }
+    }
+    endGame(type) {
+        this.unsetEvents();
+        this.ws = null;
+        this.setButtonText(true);
+        this.setMessage(`Game Over! ${(type === "DRAW") ? "Draw!" : (type === this.player ? "You win!" : "You lose!")}`);
+    }
+    unsetEvents() {
+        window.onkeyup = undefined;
+        let buttons = document.querySelectorAll("button");
+        buttons.forEach(b => b.onclick = undefined);
+    }
+    setButtonText(on) {
+        let button = document.querySelector("input[type='button']");
+        button.value = on ? "Start" : "Quit";
+    }
+    startGame() {
+        if (this.ws) {
+            this.ws.close(this.closeCodes.ADVERSARY_QUIT.code, this.closeCodes.ADVERSARY_QUIT.description);
+            this.endGame();
+        } else {
+            this.ws = new WebSocket("ws://" + document.location.host + document.location.pathname + "wordle");
+            this.ws.onmessage = this.readData.bind(this);
+            this.setButtonText(false);
+        }
+    }
     registerEvents() {
         this.fillBoard();
         window.onkeyup = this.keyPressed.bind(this);
         let buttons = document.querySelectorAll("button");
         buttons.forEach(b => b.onclick = this.buttonPressed.bind(this));
+        let button = document.querySelector("input[type='button']");
+        button.onclick = this.startGame.bind(this);
     }
 }
 let gui = new GUI();
