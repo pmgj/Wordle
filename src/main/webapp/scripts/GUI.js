@@ -4,7 +4,7 @@ class GUI {
         let tBodies = document.querySelectorAll("tbody");
         this.wordle = [];
         for (const table of tBodies) {
-            this.wordle.push({ currentWord: "", tbody: table });
+            this.wordle.push({ currentWord: "", tbody: table, row: 0, col: 0 });
         }
     }
     showWord(mr, tabindex) {
@@ -73,53 +73,42 @@ class GUI {
         animation(td);
     }
     checkWord() {
-        for (let i = 0; i < this.wordle.length; i++) {
-            try {
-                if (this.wordle[i].isOver) continue;
-                let temp = this.wordle[i].game.check(this.wordle[i].currentWord);
-                this.showWord(temp, i);
-            } catch (ex) {
-                if (ex instanceof NotInWordListError) {
-                    let tr = this.wordle[i].tbody.rows[this.wordle[i].row];
-                    for (let j = 0; j < tr.cells.length; j++) {
-                        tr.cells[j].dataset.animation = "shake";
-                        tr.cells[j].onanimationend = () => {
-                            tr.cells[j].dataset.animation = "";
-                        };
-                    }
+        try {
+            this.ws.send(this.wordle[i].currentWord);
+            this.showWord(temp, 1);
+        } catch (ex) {
+            if (ex instanceof NotInWordListError) {
+                let tr = this.wordle[i].tbody.rows[this.wordle[i].row];
+                for (let j = 0; j < tr.cells.length; j++) {
+                    tr.cells[j].dataset.animation = "shake";
+                    tr.cells[j].onanimationend = () => {
+                        tr.cells[j].dataset.animation = "";
+                    };
                 }
             }
         }
     }
     removeLetter() {
-        for (let i = 0; i < this.wordle.length; i++) {
-            let temp = this.wordle[i];
-            if (temp.col === 0) {
-                continue;
-            }
-            temp.currentWord = temp.currentWord.slice(0, -1);
-            temp.col--;
-            if (!temp.isOver) {
-                let td = temp.tbody.rows[temp.row].cells[temp.col];
-                td.textContent = "";
-                td.dataset.animation = "";
-            }
+        let temp = this.wordle[1];
+        if (temp.col === 0) {
+            return;
         }
+        temp.currentWord = temp.currentWord.slice(0, -1);
+        temp.col--;
+        let td = temp.tbody.rows[temp.row].cells[temp.col];
+        td.textContent = "";
+        td.dataset.animation = "";
     }
     addLetter(letter) {
-        for (let i = 0; i < this.wordle.length; i++) {
-            let temp = this.wordle[i];
-            if (temp.currentWord.length >= 6) {
-                return;
-            }
-            if (!temp.isOver) {
-                let td = temp.tbody.rows[temp.row].cells[temp.col];
-                td.textContent = letter;
-                td.dataset.animation = "pop";
-                temp.currentWord += letter;
-                temp.col++;
-            }
+        let temp = this.wordle[1];
+        if (temp.currentWord.length >= 5) {
+            return;
         }
+        let td = temp.tbody.rows[temp.row].cells[temp.col];
+        td.textContent = letter;
+        td.dataset.animation = "pop";
+        temp.currentWord += letter;
+        temp.col++;
     }
     process(key) {
         switch (key) {
@@ -169,14 +158,17 @@ class GUI {
                 break;
             case "MESSAGE":
                 /* Recebendo o tabuleiro modificado */
-                this.fillBoard();
-                this.setMessage(data.turn === this.player ? "Your turn." : "Opponent's turn.");
+                if(data.result) {
+                    this.showWord(data.result, 0);
+                } else {
+                    this.fillBoard();
+                }
                 break;
             case "ENDGAME":
                 /* Fim do jogo */
-                this.printBoard(data.board);
+                this.showWord(data.result, 0);
                 this.ws.close(this.closeCodes.ENDGAME.code, this.closeCodes.ENDGAME.description);
-                this.endGame(data.winner);
+                this.endGame(data.result.winner);
                 break;
         }
     }
@@ -212,7 +204,6 @@ class GUI {
         }
     }
     registerEvents() {
-        // this.fillBoard();
         window.onkeyup = this.keyPressed.bind(this);
         let buttons = document.querySelectorAll("button");
         buttons.forEach(b => b.onclick = this.buttonPressed.bind(this));
