@@ -23,21 +23,24 @@ public class Endpoint {
 
     private static Session s1;
     private static Session s2;
-    private static Wordle game;
+    private static Wordle game1;
+    private static Wordle game2;
 
     @OnOpen
     public void onOpen(Session session) throws IOException, EncodeException {
+        String content = new String(getClass().getClassLoader().getResourceAsStream("words_en.js").readAllBytes());
+        String[] array = JsonbBuilder.create().fromJson(content, String[].class);
+        int tries = 6;
+        List<String> list = List.of(array);
         if (s1 == null) {
             s1 = session;
+            game1 = new Wordle(list, tries);
             s1.getBasicRemote().sendObject(new Message(ConnectionType.OPEN, Player.PLAYER1, null));
         } else if (s2 == null) {
             s2 = session;
-            String content = new String(Files.readAllBytes(Paths.get("src\\main\\java\\resources\\words_en.js")));
-            String[] array = JsonbBuilder.create().fromJson(content, String[].class);
-            List<String> list = List.of(array);
-            game = new Wordle(list, 6);
+            game2 = new Wordle(list, tries);
             s2.getBasicRemote().sendObject(new Message(ConnectionType.OPEN, Player.PLAYER2, null));
-            sendMessage(new Message(ConnectionType.MESSAGE, game.getTurn(), null));
+            sendMessage(new Message(ConnectionType.MESSAGE, null, null));
         } else {
             session.close();
         }
@@ -45,12 +48,23 @@ public class Endpoint {
 
     @OnMessage
     public void onMessage(Session session, String word) throws IOException, EncodeException {
+        MoveResult ret;
+        Player turn;
         try {
-            MoveResult ret = game.check(session == s1 ? Player.PLAYER1 : Player.PLAYER2, word);
-            if (ret.winner() == Winner.NONE) {
-                sendMessage(new Message(ConnectionType.MESSAGE, game.getTurn(), ret));
+            if (s1 == session) {
+                ret = game1.check(word);
+                turn = Player.PLAYER1;
+            } else if (s2 == session) {
+                ret = game2.check(word);
+                turn = Player.PLAYER2;
             } else {
-                sendMessage(new Message(ConnectionType.ENDGAME, game.getTurn(), ret));
+                session.close();
+                return;
+            }
+            if (ret.winner() == Winner.NONE) {
+                sendMessage(new Message(ConnectionType.MESSAGE, turn, ret));
+            } else {
+                sendMessage(new Message(ConnectionType.ENDGAME, turn, ret));
             }
         } catch (Exception ex) {
             System.out.println(ex.getMessage());

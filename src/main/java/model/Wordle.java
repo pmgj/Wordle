@@ -1,8 +1,7 @@
 package model;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -15,7 +14,6 @@ public class Wordle {
     private int tries;
     private int maxTries;
     private int wordLength;
-    private Player turn;
 
     public Wordle(List<String> words, int tries) {
         this.words = words;
@@ -23,14 +21,9 @@ public class Wordle {
         this.tries = 0;
         this.maxTries = tries;
         this.wordLength = this.secret.length();
-        this.turn = Player.PLAYER1;
     }
 
-    public Player getTurn() {
-        return turn;
-    }
-
-    public MoveResult check(Player player, String value) throws Exception {
+    public MoveResult check(String value) throws Exception {
         if (value.length() != this.secret.length()) {
             throw new Exception(
                     String.format("The length of the word is incorrect. Must be %d.", this.secret.length()));
@@ -40,9 +33,6 @@ public class Wordle {
         }
         if (!this.words.contains(value)) {
             throw new Exception("The word is not in word list.");
-        }
-        if (this.turn != player) {
-            throw new Exception("It's not your turn.");
         }
 
         int[] result = new int[this.wordLength];
@@ -72,7 +62,6 @@ public class Wordle {
                 }
             }
         }
-        this.turn = this.turn == Player.PLAYER1 ? Player.PLAYER2 : Player.PLAYER1;
         this.tries++;
         if (IntStream.of(result).allMatch(e -> e == 2)) {
             return new MoveResult(Winner.WIN, this.secret, result);
@@ -85,7 +74,8 @@ public class Wordle {
 
     public static void main(String[] args) {
         try {
-            String content = new String(Files.readAllBytes(Paths.get("src\\main\\java\\resources\\words_en.js")));
+            InputStream is = Wordle.class.getClassLoader().getResourceAsStream("words_en.js");
+            String content = new String(is.readAllBytes());
             System.out.println(content);
             String[] array = JsonbBuilder.create().fromJson(content, String[].class);
             System.out.println(array[0]);

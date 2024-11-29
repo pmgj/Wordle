@@ -109,7 +109,7 @@ class GUI {
     addLetter(letter) {
         for (let i = 0; i < this.wordle.length; i++) {
             let temp = this.wordle[i];
-            if (temp.currentWord.length >= temp.game.wordLength) {
+            if (temp.currentWord.length >= 6) {
                 return;
             }
             if (!temp.isOver) {
@@ -144,15 +144,19 @@ class GUI {
         for (let i = 0; i < this.wordle.length; i++) {
             const element = this.wordle[i];
             let rows = "";
-            for (let i = 0; i < element.game.maxTries; i++) {
+            for (let i = 0; i < 6; i++) {
                 rows += "<tr>";
-                for (let j = 0; j < element.game.wordLength; j++) {
+                for (let j = 0; j < 5; j++) {
                     rows += "<td></td>";
                 }
                 rows += "</tr>";
             }
             element.tbody.innerHTML = rows;
         }
+    }
+    setMessage(msg) {
+        let message = document.getElementById("message");
+        message.innerHTML = msg;
     }
     readData(evt) {
         let data = JSON.parse(evt.data);
@@ -165,7 +169,7 @@ class GUI {
                 break;
             case "MESSAGE":
                 /* Recebendo o tabuleiro modificado */
-                this.printBoard(data.board);
+                this.fillBoard();
                 this.setMessage(data.turn === this.player ? "Your turn." : "Opponent's turn.");
                 break;
             case "ENDGAME":
@@ -175,6 +179,12 @@ class GUI {
                 this.endGame(data.winner);
                 break;
         }
+    }
+    clearBoard() {
+        let table = document.querySelectorAll("table#opBoard");
+        table.innerHTML = "";
+        table = document.querySelectorAll("table#myBoard");
+        table.innerHTML = "";
     }
     endGame(type) {
         this.unsetEvents();
@@ -202,7 +212,7 @@ class GUI {
         }
     }
     registerEvents() {
-        this.fillBoard();
+        // this.fillBoard();
         window.onkeyup = this.keyPressed.bind(this);
         let buttons = document.querySelectorAll("button");
         buttons.forEach(b => b.onclick = this.buttonPressed.bind(this));
