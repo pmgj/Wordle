@@ -1,6 +1,10 @@
+import Winner from "./Winner.js";
+
 class GUI {
     constructor() {
         this.ws = null;
+        this.player = null;
+        this.closeCodes = { ENDGAME: { code: 4000, description: "End of game." }, ADVERSARY_QUIT: { code: 4001, description: "The opponent quit the game" } };
         let tBodies = document.querySelectorAll("tbody");
         this.wordle = [];
         for (const table of tBodies) {
@@ -21,9 +25,8 @@ class GUI {
                     }
                 };
                 endanim(td);
-                this.wordle[tabindex].isOver = true;
             }
-            if (this.wordle.every(w => w.isOver)) {
+            if (mr.winner === Winner.WIN) {
                 window.onkeyup = undefined;
                 message.textContent = "Congratulations!";
                 message.className = "bg-success text-white";
@@ -34,6 +37,10 @@ class GUI {
             }
         };
         let styleKeyboard = () => {
+            if (tabindex === 0) {
+                endOfGame();
+                return;
+            }
             for (let i = 0; i < mr.hint.length; i++) {
                 let index = mr.hint[i];
                 let letter = this.wordle[tabindex].currentWord[i];
@@ -74,9 +81,9 @@ class GUI {
     }
     checkWord() {
         try {
-            this.ws.send(this.wordle[i].currentWord);
             this.showWord(temp, 1);
         } catch (ex) {
+            console.log(ex);
             if (ex instanceof NotInWordListError) {
                 let tr = this.wordle[i].tbody.rows[this.wordle[i].row];
                 for (let j = 0; j < tr.cells.length; j++) {
@@ -113,7 +120,7 @@ class GUI {
     process(key) {
         switch (key) {
             case "Enter":
-                this.checkWord();
+                this.ws.send(this.wordle[1].currentWord);
                 break;
             case "Backspace":
                 this.removeLetter();
@@ -157,18 +164,25 @@ class GUI {
                 this.clearBoard();
                 break;
             case "MESSAGE":
+                this.setMessage("");
                 /* Recebendo o tabuleiro modificado */
-                if(data.result) {
-                    this.showWord(data.result, 0);
+                if (data.result) {
+                    let i = data.turn === this.player ? 1 : 0;
+                    this.showWord(data.result, i);
                 } else {
                     this.fillBoard();
                 }
                 break;
             case "ENDGAME":
                 /* Fim do jogo */
-                this.showWord(data.result, 0);
-                this.ws.close(this.closeCodes.ENDGAME.code, this.closeCodes.ENDGAME.description);
-                this.endGame(data.result.winner);
+                if (data.result) {
+                    let i = data.turn === this.player ? 1 : 0;
+                    this.showWord(data.result, i);
+                    this.ws.close(this.closeCodes.ENDGAME.code, this.closeCodes.ENDGAME.description);
+                    this.endGame();
+                } else {
+                    this.endGame(this.player);
+                }
                 break;
         }
     }
@@ -179,10 +193,14 @@ class GUI {
         table.innerHTML = "";
     }
     endGame(type) {
-        this.unsetEvents();
         this.ws = null;
         this.setButtonText(true);
         this.setMessage(`Game Over! ${(type === "DRAW") ? "Draw!" : (type === this.player ? "You win!" : "You lose!")}`);
+    }
+    setEvents() {
+        window.onkeyup = this.keyPressed.bind(this);
+        let buttons = document.querySelectorAll("button");
+        buttons.forEach(b => b.onclick = this.buttonPressed.bind(this));
     }
     unsetEvents() {
         window.onkeyup = undefined;
@@ -197,16 +215,18 @@ class GUI {
         if (this.ws) {
             this.ws.close(this.closeCodes.ADVERSARY_QUIT.code, this.closeCodes.ADVERSARY_QUIT.description);
             this.endGame();
+            this.unsetEvents();
         } else {
             this.ws = new WebSocket("ws://" + document.location.host + document.location.pathname + "wordle");
             this.ws.onmessage = this.readData.bind(this);
             this.setButtonText(false);
+            this.fillBoard();
+            this.setMessage("");
+            this.setEvents();
         }
     }
     registerEvents() {
-        window.onkeyup = this.keyPressed.bind(this);
-        let buttons = document.querySelectorAll("button");
-        buttons.forEach(b => b.onclick = this.buttonPressed.bind(this));
+        this.setEvents();
         let button = document.querySelector("input[type='button']");
         button.onclick = this.startGame.bind(this);
     }
