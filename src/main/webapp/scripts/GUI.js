@@ -84,22 +84,6 @@ class GUI {
         let td = this.wordle[tabindex].tbody.rows[this.wordle[tabindex].row].cells[0];
         animation(td);
     }
-    checkWord() {
-        try {
-            this.showWord(temp, 1);
-        } catch (ex) {
-            console.log(ex);
-            if (ex instanceof NotInWordListError) {
-                let tr = this.wordle[i].tbody.rows[this.wordle[i].row];
-                for (let j = 0; j < tr.cells.length; j++) {
-                    tr.cells[j].dataset.animation = "shake";
-                    tr.cells[j].onanimationend = () => {
-                        tr.cells[j].dataset.animation = "";
-                    };
-                }
-            }
-        }
-    }
     removeLetter() {
         let temp = this.wordle[1];
         if (temp.col === 0) {
@@ -174,8 +158,18 @@ class GUI {
                 this.setMessage("");
                 /* Recebendo o tabuleiro modificado */
                 if (data.result) {
-                    let i = data.turn === this.player ? 1 : 0;
-                    this.showWord(data.result, i);
+                    if (data.turn) {
+                        let i = data.turn === this.player ? 1 : 0;
+                        this.showWord(data.result, i);
+                    } else {
+                        let tr = this.wordle[1].tbody.rows[this.wordle[1].row];
+                        for (let j = 0; j < tr.cells.length; j++) {
+                            tr.cells[j].dataset.animation = "shake";
+                            tr.cells[j].onanimationend = () => {
+                                tr.cells[j].dataset.animation = "";
+                            };
+                        }
+                    }
                 } else {
                     this.fillBoard();
                 }

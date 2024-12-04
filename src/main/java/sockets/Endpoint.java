@@ -12,6 +12,7 @@ import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
 import model.MoveResult;
+import model.NotInWordListException;
 import model.Player;
 import model.Winner;
 import model.Wordle;
@@ -71,6 +72,13 @@ public class Endpoint {
                     MoveResult mr = new MoveResult(Winner.LOSE, game1.getSecret(), ret.hint());
                     s1.getBasicRemote().sendObject(new Message(ConnectionType.ENDGAME, turn, mr));
                 }
+            }
+        } catch (NotInWordListException ex) {
+            MoveResult mr = new MoveResult(Winner.NONE, ex.getMessage(), null);
+            if (s1 == session) {
+                s1.getBasicRemote().sendObject(new Message(ConnectionType.MESSAGE, null, mr));
+            } else if (s2 == session) {
+                s2.getBasicRemote().sendObject(new Message(ConnectionType.MESSAGE, null, mr));
             }
         } catch (Exception ex) {
             System.out.println(ex.getMessage());

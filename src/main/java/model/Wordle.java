@@ -38,7 +38,7 @@ public class Wordle {
             throw new Exception("You have no more tries.");
         }
         if (!this.words.contains(value)) {
-            throw new Exception("The word is not in word list.");
+            throw new NotInWordListException(value);
         }
 
         int[] result = new int[this.wordLength];
