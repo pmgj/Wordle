@@ -90,9 +90,7 @@ td[data-animation="bounce"] {
     padding: 0.5em;
     margin: 1em auto;
     font-size: 1.5em;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    text-align: center;
     transition: color 1s, background-color 1s;
 }
 

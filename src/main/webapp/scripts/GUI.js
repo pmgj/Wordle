@@ -154,6 +154,8 @@ class GUI {
             }
             element.tbody.innerHTML = rows;
         }
+        let message = document.getElementById("message");
+        message.className = "";
     }
     setMessage(msg) {
         let message = document.getElementById("message");
@@ -185,9 +187,11 @@ class GUI {
                     this.showWord(data.result, i);
                     this.ws.close(this.closeCodes.ENDGAME.code, this.closeCodes.ENDGAME.description);
                     this.endGame(data.result.winner);
+                    this.setMessage("");
                 } else {
                     this.ws.close(this.closeCodes.ENDGAME.code, this.closeCodes.ENDGAME.description);
                     this.endGame(this.player);
+                    this.createGames();
                 }
                 break;
         }
@@ -228,18 +232,16 @@ class GUI {
             this.ws.close(this.closeCodes.ADVERSARY_QUIT.code, this.closeCodes.ADVERSARY_QUIT.description);
             this.endGame();
             this.createGames();
-            this.fillBoard();
         } else {
-            this.ws = new WebSocket("ws://" + document.location.host + document.location.pathname + "wordle");
+            this.ws = new WebSocket(`ws://${document.location.host}${document.location.pathname}wordle`);
             this.ws.onmessage = this.readData.bind(this);
             this.setButtonText(false);
-            this.fillBoard();
             this.setMessage("");
             this.setEvents();
+            this.fillBoard();
         }
     }
     registerEvents() {
-        this.setEvents();
         let button = document.querySelector("input[type='button']");
         button.onclick = this.startGame.bind(this);
     }
