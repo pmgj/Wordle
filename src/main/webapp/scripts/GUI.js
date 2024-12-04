@@ -5,6 +5,9 @@ class GUI {
         this.ws = null;
         this.player = null;
         this.closeCodes = { ENDGAME: { code: 4000, description: "End of game." }, ADVERSARY_QUIT: { code: 4001, description: "The opponent quit the game" } };
+        this.createGames();
+    }
+    createGames() {
         let tBodies = document.querySelectorAll("tbody");
         this.wordle = [];
         for (const table of tBodies) {
@@ -30,10 +33,12 @@ class GUI {
                 window.onkeyup = undefined;
                 message.textContent = "Congratulations!";
                 message.className = "bg-success text-white";
+                this.createGames();
             } else if (mr.winner === Winner.LOSE) {
                 window.onkeyup = undefined;
-                message.textContent = `You lose! ${this.wordle.map(mr => mr.game.secret.toUpperCase())}`;
+                message.textContent = `You lose! ${mr.code.toUpperCase()}`;
                 message.className = "bg-secondary text-white";
+                this.createGames();
             }
         };
         let styleKeyboard = () => {
@@ -50,7 +55,7 @@ class GUI {
                     b.classList.remove(b.dataset[`color${tabindex}`]);
                     b.dataset[`color${tabindex}`] = bStyles[index];
                 }
-                if (b.dataset.color0) {
+                if (b.dataset.color1) {
                     b.classList.remove("bg-secondary-subtle");
                     b.classList.add("text-white");
                     b.classList.add(b.dataset[`color${tabindex}`]);
@@ -179,8 +184,9 @@ class GUI {
                     let i = data.turn === this.player ? 1 : 0;
                     this.showWord(data.result, i);
                     this.ws.close(this.closeCodes.ENDGAME.code, this.closeCodes.ENDGAME.description);
-                    this.endGame();
+                    this.endGame(data.result.winner);
                 } else {
+                    this.ws.close(this.closeCodes.ENDGAME.code, this.closeCodes.ENDGAME.description);
                     this.endGame(this.player);
                 }
                 break;
@@ -196,11 +202,16 @@ class GUI {
         this.ws = null;
         this.setButtonText(true);
         this.setMessage(`Game Over! ${(type === "DRAW") ? "Draw!" : (type === this.player ? "You win!" : "You lose!")}`);
+        this.unsetEvents();
     }
     setEvents() {
         window.onkeyup = this.keyPressed.bind(this);
         let buttons = document.querySelectorAll("button");
-        buttons.forEach(b => b.onclick = this.buttonPressed.bind(this));
+        buttons.forEach(b => {
+            b.onclick = this.buttonPressed.bind(this);
+            b.removeAttribute("data-color1");
+            b.className = "btn bg-secondary-subtle";
+        });
     }
     unsetEvents() {
         window.onkeyup = undefined;
@@ -210,12 +221,14 @@ class GUI {
     setButtonText(on) {
         let button = document.querySelector("input[type='button']");
         button.value = on ? "Start" : "Quit";
+        button.blur();
     }
     startGame() {
         if (this.ws) {
             this.ws.close(this.closeCodes.ADVERSARY_QUIT.code, this.closeCodes.ADVERSARY_QUIT.description);
             this.endGame();
-            this.unsetEvents();
+            this.createGames();
+            this.fillBoard();
         } else {
             this.ws = new WebSocket("ws://" + document.location.host + document.location.pathname + "wordle");
             this.ws.onmessage = this.readData.bind(this);

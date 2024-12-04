@@ -63,13 +63,13 @@ public class Endpoint {
                 sendMessage(new Message(ConnectionType.MESSAGE, turn, ret));
             } else {
                 if (turn == Player.PLAYER1) {
-                    s1.getBasicRemote().sendObject(new Message(ConnectionType.ENDGAME, Player.PLAYER1, ret));
-                    MoveResult mr = new MoveResult(Winner.LOSE, game2.getSecret(), null);
-                    s2.getBasicRemote().sendObject(new Message(ConnectionType.ENDGAME, Player.PLAYER2, mr));
+                    s1.getBasicRemote().sendObject(new Message(ConnectionType.ENDGAME, turn, ret));
+                    MoveResult mr = new MoveResult(Winner.LOSE, game2.getSecret(), ret.hint());
+                    s2.getBasicRemote().sendObject(new Message(ConnectionType.ENDGAME, turn, mr));
                 } else {
-                    s2.getBasicRemote().sendObject(new Message(ConnectionType.ENDGAME, Player.PLAYER2, ret));
-                    MoveResult mr = new MoveResult(Winner.LOSE, game1.getSecret(), null);
-                    s1.getBasicRemote().sendObject(new Message(ConnectionType.ENDGAME, Player.PLAYER1, mr));
+                    s2.getBasicRemote().sendObject(new Message(ConnectionType.ENDGAME, turn, ret));
+                    MoveResult mr = new MoveResult(Winner.LOSE, game1.getSecret(), ret.hint());
+                    s1.getBasicRemote().sendObject(new Message(ConnectionType.ENDGAME, turn, mr));
                 }
             }
         } catch (Exception ex) {
